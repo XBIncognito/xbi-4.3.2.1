@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=XBI
+Comment=XBI P2P Cryptocurrency
+Comment[fr]=XBI, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=XBI, eşten eşe kriptografik sanal para birimi
+Exec=xbi-qt %u
+Terminal=false
+Type=Application
+Icon=xbi128
+MimeType=x-scheme-handler/xbi;
+Categories=Office;Finance;

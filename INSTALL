@@ -1,0 +1,14 @@
+Building XBI
+
+Use the guides provided in `howToUbuntu` and `howToUbuntuFromWindows`... or just
+use the autogen script to prepare the build environment.
+
+    ./autogen.sh
+    ./configure
+    make
+
+Always verify the signatures and checksums.
+
+See doc/build-*.md for instructions on building xbid,
+the intended-for-services, no-graphical-interface, reference
+implementation of XBI.

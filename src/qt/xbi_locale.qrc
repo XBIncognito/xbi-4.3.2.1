@@ -1,0 +1,30 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource prefix="/translations">
+        <file alias="bg">locale/xbi_bg.qm</file>
+        <file alias="ca">locale/xbi_ca.qm</file>
+        <file alias="cs">locale/xbi_cs.qm</file>
+        <file alias="da">locale/xbi_da.qm</file>
+        <file alias="de">locale/xbi_de.qm</file>
+        <file alias="en">locale/xbi_en.qm</file>
+        <file alias="en_US">locale/xbi_en_US.qm</file>
+        <file alias="es">locale/xbi_es.qm</file>
+        <file alias="fi">locale/xbi_fi.qm</file>
+        <file alias="fr_FR">locale/xbi_fr_FR.qm</file>
+        <file alias="hr">locale/xbi_hr.qm</file>
+        <file alias="it">locale/xbi_it.qm</file>
+        <file alias="ja">locale/xbi_ja.qm</file>
+        <file alias="ko_KR">locale/xbi_ko_KR.qm</file>
+        <file alias="nl">locale/xbi_nl.qm</file>
+        <file alias="pl">locale/xbi_pl.qm</file>
+        <file alias="pt">locale/xbi_pt.qm</file>
+        <file alias="pt_BR">locale/xbi_pt_BR.qm</file>
+        <file alias="ro_RO">locale/xbi_ro_RO.qm</file>
+        <file alias="ru">locale/xbi_ru.qm</file>
+        <file alias="sk">locale/xbi_sk.qm</file>
+        <file alias="sv">locale/xbi_sv.qm</file>
+        <file alias="tr">locale/xbi_tr.qm</file>
+        <file alias="uk">locale/xbi_uk.qm</file>
+        <file alias="zh_CN">locale/xbi_zh_CN.qm</file>
+        <file alias="zh_TW">locale/xbi_zh_TW.qm</file>
+    </qresource>
+</RCC>

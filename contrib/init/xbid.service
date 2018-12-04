@@ -1,0 +1,26 @@
+[Unit]
+Description=XBI's distributed currency daemon
+After=network.target
+
+[Service]
+User=xbi
+Group=xbi
+
+Type=forking
+PIDFile=/var/lib/xbid/xbid.pid
+
+ExecStart=/usr/bin/xbid -daemon -pid=/var/lib/xbid/xbid.pid \
+          -conf=/etc/xbi/xbi.conf -datadir=/var/lib/xbid
+
+ExecStop=-/usr/bin/xbi-cli -conf=/etc/xbi/xbi.conf \
+         -datadir=/var/lib/xbid stop
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

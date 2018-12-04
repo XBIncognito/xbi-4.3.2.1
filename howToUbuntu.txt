@@ -1,0 +1,39 @@
+How to set up a daemon for XBI(Ubuntu/debian):
+
+1) Config dependencies:
+sudo add-apt-repository ppa:bitcoin/bitcoin
+sudo apt-get update
+sudo apt-get install -y build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils python3 libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-program-options-dev libboost-test-dev libboost-thread-dev libboost-dev libevent-1.4-2 libdb4.8-dev libdb4.8++-dev autoconf libboost-all-dev libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler libqrencode-dev libminiupnpc-dev git
+
+2) Get the code from repository:
+
+git clone https://github.com/XBIncognito/public.git
+
+3) Config parameters the code:
+./autogen.sh
+./configure --enable-cxx --disable-shared --with-pic --prefix=$PWD/ --enable-hardening --with-gui=no
+(if building wallet, you can delete the `--with-gui=no` part up there)
+
+4) Compile the code:
+make
+make install DESTDIR=/
+
+
+4.1)Hopefully, by now you've compiled without any issues. So now, if you already had a wallet, this is when you should copy your wallet.dat inside the subfolder in ~/.XBI/...
+
+5) Start/stop the daemon to run a regular node
+cd bin
+./xbid -daemon
+
+./xbi-cli stop 
+
+6) Check if everything's running
+./xbi-cli getinfo
+watch -n 10 tail -n 50 ~/.XBI/debug.log
+
+/***********************************************/
+/* I've tested it on both Ubuntu 14.04 and 16.04
+/* galimba  -  github.com/galimba
+/***********************************************/
+Based on the BTC reference guide: https://github.com/bitcoin/bitcoin/blob/master/doc/build-windows.md
+

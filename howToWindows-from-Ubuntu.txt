@@ -1,0 +1,74 @@
+How to set up a wallet/daemon for XBI
+(cross compiling from Ubuntu 16.04 to Windows 64 bits exe):
+
+0) You'll need to download the source code from xbi repository, and 
+
+1) Config dependencies:
+sudo add-apt-repository ppa:bitcoin/bitcoin
+sudo apt-get update
+sudo apt-get install -y build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils python3 libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-program-options-dev libboost-test-dev libboost-thread-dev libboost-dev libevent-1.4-2 libdb4.8-dev libdb4.8++-dev autoconf libboost-all-dev libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler libqrencode-dev libminiupnpc-dev git mingw-w64 g++-mingw-w64-i686 mingw-w64-i686-dev
+
+1.1) You'll need to download the source code from xbi repository 
+
+1.1) And you'll need to download the source-code from PIVX project https://github.com/PIVX-Project/PIVX/releases/tag/v3.1.0
+
+git clone https://github.com/XBIncognito/public.git 
+wget https://github.com/PIVX-Project/PIVX/releases/tag/v3.1.0 (or just go to the site and download the zip)
+
+[note] I assume you know your way around copy&paste in linux. Some command line stuff may be needed here !!
+
+
+[warning!]: The XBI source code does not have within it some of the files needed inside folder depends/ that the code from PIVX does, so in order to make this work, we're gonna have to "merge" the folders, copying the files that XBI does not have but PIVX does. DO NOT JUST REPLACE ALL FILES IN depends/  (!!)
+
+
+2) Configure the mingw compiler so that Linux uses it:
+
+sudo update-alternatives --config i686-w64-mingw32-g++
+
+This will show you three options!
+**************************************************************************
+  Selection    Path                                 Priority   Status
+------------------------------------------------------------
+  0            /usr/bin/i686-w64-mingw32-g++-win32   60        auto mode
+  1            /usr/bin/i686-w64-mingw32-g++-posix   30        manual mode
+* 2            /usr/bin/i686-w64-mingw32-g++-win32   60        manual mode
+**************************************************************************
+(!!) Choose 'i686-w64-mingw32-g++-win32' in 'manual mode' (!!)
+
+
+3) To strip out problematic Windows %PATH% imported var, execute this command:
+
+PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g')
+
+4) change directory to dependencies
+
+cd depends/
+
+5) Start compiling dependencies(this will take a while and the first time doing so, it'll need an internet connection to download several Windows compatible packages:
+
+make HOST=i686-w64-mingw32
+
+6) get back to the code directory:
+
+cd ..
+
+7) Autogen & Config code for compiling:
+
+./autogen.sh
+CONFIG_SITE=$PWD/depends/i686-w64-mingw32/share/config.site ./configure --prefix=/$PWD CXXFLAGS="-O2 -msse2 -Wno-narrowing -std=gnu++11"
+
+8) Compile and install
+make
+make install DESTDIR=/
+
+9) you're done! You should find your windows compatible exe files inside a subfolder within bin/
+If you want to start your wallet, you should have a file named:
+
+xbi-qt.exe
+
+
+/***********************************************/
+/* I've tested it on Ubuntu 16.04
+/* galimba  -  github.com/galimba
+/***********************************************/
+Based on the BTC reference guide: https://github.com/bitcoin/bitcoin/blob/master/doc/build-windows.md

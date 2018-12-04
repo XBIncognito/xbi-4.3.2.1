@@ -1,0 +1,26 @@
+# /etc/conf.d/xbid: config file for /etc/init.d/xbid
+
+# Config file location
+#BITCOIND_CONFIGFILE="/etc/xbi/xbi.conf"
+
+# What directory to write pidfile to?  (created and owned by $BITCOIND_USER)
+#BITCOIND_PIDDIR="/var/run/xbid"
+
+# What filename to give the pidfile
+#BITCOIND_PIDFILE="${BITCOIND_PIDDIR}/xbid.pid"
+
+# Where to write xbid data (be mindful that the blockchain is large)
+#BITCOIND_DATADIR="/var/lib/xbid"
+
+# User and group to own xbid process
+#BITCOIND_USER="xbi"
+#BITCOIND_GROUP="xbi"
+
+# Path to xbid executable
+#BITCOIND_BIN="/usr/bin/xbid"
+
+# Nice value to run xbid under
+#BITCOIND_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+BITCOIND_OPTS=""
