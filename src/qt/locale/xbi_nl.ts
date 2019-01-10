@@ -3204,7 +3204,7 @@ Wees alsjeblieft geduldig...</translation>
     </message>
     <message>
         <source>S&amp;end</source>
-        <translation>V&amp;erzonden</translation>
+        <translation>V&amp;erzenden</translation>
     </message>
     <message>
         <source>Clear all fields of the form.</source>
