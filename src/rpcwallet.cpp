@@ -2632,7 +2632,7 @@ Value getarchivedzerocoin(const Array& params, bool fHelp)
     list<CZerocoinMint> listMints = walletdb.ListArchivedZerocoins();
 
     Array arrRet;
-    for (const CZerocoinMint mint : listMints) {
+    for (const CZerocoinMint& mint : listMints) {
         Object objMint;
         objMint.push_back(Pair("txid", mint.GetTxHash().GetHex()));
         objMint.push_back(Pair("denomination", FormatMoney(mint.GetDenominationAsAmount())));
@@ -2794,7 +2794,7 @@ Value reconsiderzerocoins(const Array& params, bool fHelp)
     pwalletMain->ReconsiderZerocoins(listMints);
 
     Array arrRet;
-    for (const CZerocoinMint mint : listMints) {
+    for (const CZerocoinMint& mint : listMints) {
         Object objMint;
         objMint.emplace_back(Pair("txid", mint.GetTxHash().GetHex()));
         objMint.emplace_back(Pair("denomination", FormatMoney(mint.GetDenominationAsAmount())));
