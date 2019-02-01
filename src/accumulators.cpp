@@ -216,7 +216,7 @@ bool CalculateAccumulatorCheckpoint(int nHeight, uint256& nCheckpoint)
         LogPrint("zero", "%s found %d mints\n", __func__, listPubcoins.size());
 
         //add the pubcoins to accumulator
-        for (const PublicCoin pubcoin : listPubcoins) {
+        for (const PublicCoin& pubcoin : listPubcoins) {
             if (!pubcoin.validate())
                 continue;
 
