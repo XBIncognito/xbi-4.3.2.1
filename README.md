@@ -9,7 +9,7 @@ There's also a short guide for compiling the Windows wallet
 (howToWindowsFromUbuntu.txt)
 
 
-###Join us on Discord https://discord.gg/ABjhzD
+###Join us on Discord https://discord.gg/vr7Dfkr
 https://bitcoinincognito.org/
 
 
