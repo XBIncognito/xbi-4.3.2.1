@@ -330,7 +330,7 @@ CMasternodeBroadcast::CMasternodeBroadcast()
     vin = CTxIn();
     addr = CService();
     pubKeyCollateralAddress = CPubKey();
-    pubKeyMasternode1 = CPubKey();
+    pubKeyMasternode = CPubKey();
     sig = std::vector<unsigned char>();
     activeState = MASTERNODE_ENABLED;
     sigTime = GetAdjustedTime();
