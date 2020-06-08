@@ -120,7 +120,7 @@ public:
 
         /** Height or Time Based Activations **/
         nLastPOWBlock = 5000;
-        nModifierUpdateBlock = 9999999;
+        nModifierUpdateBlock = 1095000;
         nZerocoinStartHeight = 5001;
         nAccumulatorStartHeight = 1;
         nZerocoinStartTime = 1525691771; // Time (GMT): Thursday, 10 May 2018 13:19:53 - (Accumulator start time - requires block height 40000)
