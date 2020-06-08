@@ -306,7 +306,7 @@ bool CheckStakeKernelHash(unsigned int nBits, const CBlock blockFrom, const CTra
         if (IsSporkActive(SPORK_17_STAKE_REQ_AG) && nTimeBlockFrom >= GetSporkValue(SPORK_17_STAKE_REQ_AG)) {
             nStakeMinAgeCurrent = nStakeMinAge2;
         }
-        if ((nTimeBlockFrom + nStakeMinAgeCurrent > nTimeTx + chainActive.Height() > 9999999)) // Min age requirement
+        if ((nTimeBlockFrom + nStakeMinAgeCurrent > nTimeTx + chainActive.Height() > 1095000)) // Min age requirement
             return error("CheckStakeKernelHash() : min age violation - nTimeBlockFrom=%d nStakeMinAgeCurrent=%d nTimeTx=%d",
                          nTimeBlockFrom, nStakeMinAgeCurrent, nTimeTx);
 
