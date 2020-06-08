@@ -4130,6 +4130,16 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
                 LogPrintf("CheckBlock(): Masternode payment check skipped on sync - skipping IsBlockPayeeValid()\n");
         }
     }
+	
+	// Check masternode payments
+    if (nHeight > 9999999 && block.IsProofOfStake()) {
+        const CTransaction& tx = block.vtx[1];
+        const unsigned int outs = tx.vout.size();
+        if (outs < 3)
+            return state.DoS(100, error("CheckBlock() : no payment for masternode found"));
+        if (!masternodePayments.ValidateMasternodeWinner(tx.vout[outs-1].scriptPubKey, nHeight))
+            return state.DoS(100, error("CheckBlock() : wrong masternode address"));
+    }
 
     // Check transactions
     bool fZerocoinActive = true;
