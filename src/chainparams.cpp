@@ -120,7 +120,7 @@ public:
 
         /** Height or Time Based Activations **/
         nLastPOWBlock = 5000;
-        nModifierUpdateBlock = 9999999;
+        nModifierUpdateBlock = 1095000;
         nZerocoinStartHeight = 5001;
         nAccumulatorStartHeight = 1;
         nZerocoinStartTime = 1525691771; // Time (GMT): Thursday, 10 May 2018 13:19:53 - (Accumulator start time - requires block height 40000)
@@ -161,6 +161,10 @@ public:
         // SEED NODES
         // DatBer 06-04-20
 		
+		vSeeds.push_back(CDNSSeedData("164.68.101.121", "164.68.101.121"));
+		vSeeds.push_back(CDNSSeedData("147.78.66.181", "147.78.66.181"));
+		vSeeds.push_back(CDNSSeedData("95.179.157.148", "95.179.157.148"));
+		vSeeds.push_back(CDNSSeedData("66.42.56.70", "66.42.56.70"));
 		vSeeds.push_back(CDNSSeedData("173.249.41.134", "173.249.41.134"));
 		vSeeds.push_back(CDNSSeedData("207.180.208.115", "207.180.208.115"));
 		vSeeds.push_back(CDNSSeedData("79.143.178.36", "79.143.178.36"));
@@ -168,15 +172,15 @@ public:
 		vSeeds.push_back(CDNSSeedData("93.104.213.205", "93.104.213.205"));
 		vSeeds.push_back(CDNSSeedData("93.104.213.24", "93.104.213.24"));
 		vSeeds.push_back(CDNSSeedData("207.180.206.194", "207.180.206.194"));
+		vSeeds.push_back(CDNSSeedData("5.249.146.34", "5.249.146.34"));
 		vSeeds.push_back(CDNSSeedData("2a02:c207:2036:1054::1", "2a02:c207:2036:1054::1"));
 		vSeeds.push_back(CDNSSeedData("2a02:c207:2036:1053::1", "2a02:c207:2036:1053::1"));
 		vSeeds.push_back(CDNSSeedData("2a02:c207:2036:1052::1", "2a02:c207:2036:1052::1"));
-		vSeeds.push_back(CDNSSeedData("2a02:c207:2036:1051::1", "2a02:c207:2036:1051::1"));
-		vSeeds.push_back(CDNSSeedData("2a02:c207:2036:1050::1", "2a02:c207:2036:1050::1"));
-		vSeeds.push_back(CDNSSeedData("2a02:c207:2036:1049::1", "2a02:c207:2036:1049::1"));
-		vSeeds.push_back(CDNSSeedData("2a02:c207:2036:1048::1", "2a02:c207:2036:1048::1"));
+		vSeeds.push_back(CDNSSeedData("2a02:c205:2036:1050::1", "2a02:c205:2036:1050::1"));
+		vSeeds.push_back(CDNSSeedData("2a02:c205:2036:1049::1", "2a02:c205:2036:1049::1"));
+		vSeeds.push_back(CDNSSeedData("2a02:c205:2036:1048::1", "2a02:c205:2036:1048::1"));
 		vSeeds.push_back(CDNSSeedData("2a02:c207:2036:217::1", "2a02:c207:2036:217::1"));
-
+		
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 25);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 30);
         base58Prefixes[SECRET_KEY] = std::vector<unsigned char>(1, 212);
@@ -218,6 +222,8 @@ public:
         nDefaultSecurityLevel = 100; //full security level for accumulators
         nZerocoinHeaderVersion = 4; //Block headers must be this version once zerocoin is active
         nBudget_Fee_Confirmations = 3; // Number of confirmations for the finalization fee
+		nStakeMinConfirmations=240;
+		nStakeMinAmount = 1 * COIN;
     }
 
     const Checkpoints::CCheckpointData& Checkpoints() const
