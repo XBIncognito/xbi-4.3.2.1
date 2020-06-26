@@ -7,7 +7,7 @@
 #define BITCOIN_INIT_H
 
 #include <string>
-
+class CScheduler;
 class CWallet;
 
 namespace boost
@@ -21,7 +21,7 @@ void StartShutdown();
 bool ShutdownRequested();
 void Shutdown();
 void PrepareShutdown();
-bool AppInit2(boost::thread_group& threadGroup);
+bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler);
 
 /** The help message mode determines what help message to show */
 enum HelpMessageMode {

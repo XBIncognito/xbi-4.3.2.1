@@ -50,11 +50,6 @@ bool CMasternodeSync::IsBlockchainSynced()
 
     CBlockIndex* pindex = chainActive.Tip();
 
-    // datber coin burn 2018
-    if (chainActive.Height() < 1096000) {
-        return true;
-    }
-
     if (pindex == NULL) return false;
 
 

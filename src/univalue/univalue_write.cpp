@@ -3,6 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <ctype.h>
+#include <iomanip>
+#include <sstream>
 #include <stdio.h>
 #include "univalue.h"
 #include "univalue_escapes.h"
@@ -59,7 +61,14 @@ string UniValue::write(unsigned int prettyIndent,
     case VSTR:
         s += "\"" + json_escape(val) + "\"";
         break;
-    case VNUM:
+    case VREAL:
+        {
+            std::stringstream ss;
+            ss << std::showpoint << std::fixed << std::setprecision(8) << get_real();
+            s += ss.str();
+        }
+        break;
+	case VNUM:
         s += val;
         break;
     case VBOOL:

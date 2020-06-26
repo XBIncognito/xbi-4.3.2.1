@@ -373,6 +373,7 @@ bool IsBlockHashInChain(const uint256& hashBlock);
 void RecalculateZXBISpent();
 void RecalculateZXBIMinted();
 bool RecalculateXBISupply(int nHeightStart);
+bool ReindexAccumulators(list<uint256> listMissingCheckpoints, string& strError);
 
 
 /**
