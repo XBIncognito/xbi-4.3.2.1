@@ -124,6 +124,7 @@ BITCOIN_CORE_H = \
   masternode-sync.h \
   masternodeman.h \
   masternodeconfig.h \
+  memusage.h\
   merkleblock.h \
   miner.h \
   mruset.h \

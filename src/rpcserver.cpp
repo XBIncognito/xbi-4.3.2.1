@@ -349,7 +349,6 @@ static const CRPCCommand vRPCCommands[] =
         {"xbi", "checkbudgets", &checkbudgets, true, true, false},
         {"xbi", "mnsync", &mnsync, true, true, false},
         {"xbi", "spork", &spork, true, true, false},
-        {"xbi", "getpoolinfo", &getpoolinfo, true, true, false},
 #ifdef ENABLE_WALLET
         {"xbi", "obfuscation", &obfuscation, false, false, true}, /* not threadSafe because of SendMoney */
 
