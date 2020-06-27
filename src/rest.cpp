@@ -13,7 +13,7 @@
 #include "version.h"
 
 #include <boost/algorithm/string.hpp>
-#include "univalue/univalue.h"
+#include <univalue.h>
 
 using namespace std;
 
