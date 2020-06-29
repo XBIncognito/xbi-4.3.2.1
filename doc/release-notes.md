@@ -2,21 +2,28 @@
 
 XBI Core version *version* is now available from:
 
-  <https://github.com/eastcoastcrypto/XBI/releases>
+  <https://github.com/XBIncognito/xbi-4.3.2.1/releases>
 
 Please report bugs using the issue tracker at github:
 
-  <https://github.com/eastcoastcrypto/XBIita/issues>
+  <https://github.com/XBIncognito/xbi-4.3.2.1/issues>
 
 Mandatory Update
 ==============
 
-simul autem fortior nobis
+All wallets must be updated to version 4.4 or higher.
 
 How to Upgrade
 ==============
 
-If you are running an older version, shut it down. Wait until it has completely shut down (which might take a few minutes for older versions), then run the installer (on Windows) or just copy over /Applications/XBI-Qt (on Mac) or xbid/xbi-qt (on Linux).
+How to update your wallet:
+- Check the location of your XBI data folder under "tools/wallet repair" (location of your wallet.dat, so location of your data folder is the path without the wallet.dat)
+- Close your XBI wallet and wait untill it is fully closed
+- Delete everything from your XBI data folder except wallet.dat, masternode.conf, xbi.conf and your backup folder.
+- Open your xbi.conf and delete all the addnodes, if there are any
+- Place the blocks and chainstate folder from the rar of the latest bootstrap from https://github.com/sub307/XBI-bootstrap/releases in your xbi data folder
+- Make sure you are using the latest wallet from https://github.com/XBIncognito/xbi-4.3.2.1/releases (should be version 4.4 or up)
+- Open your XBI 4.4 (or up) wallet and let it sync
 
 Compatibility
 ==============
@@ -35,7 +42,14 @@ frequently tested on them.
 Notable Changes
 ===============
 
-simul autem fortior nobis
+Major updates to Masternode consensus and staking consensus.
+Extra checks on masternode winner payment and pos kernel
+Block dust / spam staking inputs from creating blocks (fork problem)
+Reworked previous sync fixes into one fix
+Add updated seeds
+Bump protocol and version
+Ban nodes from console
+Add checkpoints
 
 *version* Change log
 =================
@@ -50,7 +64,7 @@ Credits
 =======
 
 Thanks to everyone who directly contributed to this release:
-- GOAT
-- Jamison
+- Remapper
+- Sub307
 
 

@@ -142,7 +142,7 @@ extern int nScriptCheckThreads;
 extern bool fTxIndex;
 extern bool fIsBareMultisigStd;
 extern bool fCheckBlockIndex;
-extern unsigned int nCoinCacheSize;
+extern unsigned int nCoinCacheUsage;
 extern CFeeRate minRelayTxFee;
 extern bool fAlerts;
 extern bool fVerifyingBlocks;
@@ -373,6 +373,7 @@ bool IsBlockHashInChain(const uint256& hashBlock);
 void RecalculateZXBISpent();
 void RecalculateZXBIMinted();
 bool RecalculateXBISupply(int nHeightStart);
+bool ReindexAccumulators(list<uint256> listMissingCheckpoints, string& strError);
 
 
 /**
