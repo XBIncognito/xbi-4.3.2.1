@@ -1834,7 +1834,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransa
         CAmount nFees = nValueIn - nValueOut;
         double dPriority = 0;
         if (!tx.IsZerocoinSpend())
-            d.Priority= view.GetPriority(tx, chainActive.Height());
+            dPriority= view.GetPriority(tx, chainActive.Height());
 
         CTxMemPoolEntry entry(tx, nFees, GetTime(), dPriority, chainActive.Height());
         unsigned int nSize = entry.GetTxSize();
