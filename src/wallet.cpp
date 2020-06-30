@@ -1750,6 +1750,20 @@ bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*, unsigned int
     vector<COutput> vCoins;
     AvailableCoins(vCoins, true, NULL, false, STAKABLE_COINS);
     CAmount nAmountSelected = 0;
+	
+	 unsigned int nStakeMinAgeCurrent = nStakeMinAge;
+    int nStakeDepth = Params().COINBASE_MATURITY();
+    if (IsSporkActive(SPORK_17_STAKE_REQ_AG)) {
+        nStakeMinAgeCurrent = nStakeMinAge2;
+        nStakeDepth = Params().Stake_MinConfirmations();
+    }
+
+    CAmount nStakeAmount = 0;
+    if (IsSporkActive(SPORK_18_STAKE_REQ_SZ)) {
+        nStakeAmount = Params().Stake_MinAmount();
+    }
+
+
 
 	unsigned int nStakeMinAgeCurrent = nStakeMinAge;
     int nStakeDepth = Params().COINBASE_MATURITY();
@@ -1767,6 +1781,10 @@ bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*, unsigned int
         //make sure not to outrun target amount
         if (nAmountSelected + out.tx->vout[out.i].nValue > nTargetAmount)
             continue;
+		
+		//require a minimum amount to stake
+         if (out.tx->vout[out.i].nValue < nStakeAmount)
+                continue;		
 
 		//require a minimum amount to stake
         if (out.tx->vout[out.i].nValue < nStakeAmount)
@@ -1805,8 +1823,8 @@ bool CWallet::MintableCoins()
 
     vector<COutput> vCoins;
     AvailableCoins(vCoins, true);
-	
-	unsigned int nStakeMinAgeCurrent = nStakeMinAge;
+
+	  unsigned int nStakeMinAgeCurrent = nStakeMinAge;
     int nMinDepth = Params().COINBASE_MATURITY();
     if (IsSporkActive(SPORK_17_STAKE_REQ_AG)) {
         nStakeMinAgeCurrent = nStakeMinAge2;

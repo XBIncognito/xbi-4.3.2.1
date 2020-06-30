@@ -3164,8 +3164,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     nTimeConnect += nTime1 - nTimeStart;
     LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime1 - nTimeStart), 0.001 * (nTime1 - nTimeStart) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime1 - nTimeStart) / (nInputs - 1), nTimeConnect * 0.000001);
 
-    if (!IsBlockValueValid(block, pindex, nFees)){
-		CAmount nExpectedMint = GetBlockValue(pindex->pprev->nHeight);
+    if (!IsBlockValueValid(block, pindex, nFees)) {
+        CAmount nExpectedMint = GetBlockValue(pindex->pprev->nHeight);
         return state.DoS(100,
             error("ConnectBlock() : reward pays too much (actual=%s vs limit=%s)",
                 FormatMoney(pindex->nMint), FormatMoney(nExpectedMint)),
@@ -4095,7 +4095,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
         for (unsigned int i = 2; i < block.vtx.size(); i++)
             if (block.vtx[i].IsCoinStake())
                 return state.DoS(100, error("CheckBlock() : more than one coinstake"));
-			if (IsSporkActive(SPORK_17_STAKE_REQ_AG) && block.GetBlockTime() >= GetSporkValue(SPORK_17_STAKE_REQ_AG)) {
+			      if (IsSporkActive(SPORK_17_STAKE_REQ_AG) && block.GetBlockTime() >= GetSporkValue(SPORK_17_STAKE_REQ_AG)) {
 
             // Check for coin age.
             // First try finding the previous transaction in database.
@@ -4116,16 +4116,15 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
                 return state.DoS(100, error("CheckBlock() : stake under min. stake age"));
 
             // Check that the prev. stake block has required confirmations by height.
+
             if (chainActive.Tip()->nHeight - pindex->nHeight < Params().Stake_MinConfirmations() && pindex->nHeight > 1116707 ) //make sure you can get over first POS blocks
                 return state.DoS(100, error("CheckBlock() : stake under min. required confirmations"));
-			if (IsSporkActive(SPORK_18_STAKE_REQ_SZ) && block.GetBlockTime() >= GetSporkValue(SPORK_18_STAKE_REQ_SZ) && pindex->nHeight > 1116707) {
-				// Check for minimum value.
-				if (block.vtx[1].vout[1].nValue < Params().Stake_MinAmount())
-					return state.DoS(100, error("CheckBlock() : stake under min. stake value"));
-			}
-        }
-
-        
+			  if (IsSporkActive(SPORK_18_STAKE_REQ_SZ) && block.GetBlockTime() >= GetSporkValue(SPORK_18_STAKE_REQ_SZ) && pindex->nHeight > 1116707) {
+				  // Check for minimum value.
+				  if (block.vtx[1].vout[1].nValue < Params().Stake_MinAmount())
+					  return state.DoS(100, error("CheckBlock() : stake under min. stake value"));
+			  }
+      }
     }
 
     // ----------- swiftTX transaction scanning -----------
@@ -4185,6 +4184,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
                 LogPrintf("CheckBlock(): Masternode payment check skipped on sync - skipping IsBlockPayeeValid()\n");
         }
     }
+
 		// Check masternode payments
     if (IsSporkActive(SPORK_8_MASTERNODE_PAYMENT_ENFORCEMENT) && block.IsProofOfStake()) {
         const CTransaction& tx = block.vtx[1];

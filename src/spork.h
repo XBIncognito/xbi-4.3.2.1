@@ -58,7 +58,7 @@ using namespace boost;
 #define SPORK_15_NEW_PROTOCOL_ENFORCEMENT_2_DEFAULT 4070908800    //OFF
 #define SPORK_16_ZEROCOIN_MAINTENANCE_MODE_DEFAULT 4070908800     //OFF
 #define SPORK_17_STAKE_REQ_AG_DEFAULT 4070908800                  //OFF
-#define SPORK_18_STAKE_REQ_SZ_DEFAULT 4070908800                  //OFF 
+#define SPORK_18_STAKE_REQ_SZ_DEFAULT 4070908800                  //OFF          
 
 class CSporkMessage;
 class CSporkManager;
