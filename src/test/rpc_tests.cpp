@@ -41,7 +41,7 @@ UniValue CallRPC(string args)
         UniValue result = (*method)(params, false);
         return result;
     }
-    catch (Object& objError)
+    catch (const UniValue& objError)
     {
         throw runtime_error(find_value(objError, "message").get_str());
     }
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(rpc_rawparams)
 
 BOOST_AUTO_TEST_CASE(rpc_rawsign)
 {
-    Value r;
+    UniValue r;
     // input is a 1-of-2 multisig (so is output):
     string prevout =
       "[{\"txid\":\"dd2888870cdc3f6e92661f6b0829667ee4bb07ed086c44205e726bbf3338f726\","
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(rpc_format_monetary_values)
 static UniValue ValueFromString(const std::string &str)
 {
     UniValue value;
-    BOOST_CHECK(valuesetNumStr(str));
+    BOOST_CHECK(value.setNumStr(str));
     return value;
 }
 
@@ -167,9 +167,10 @@ BOOST_AUTO_TEST_CASE(rpc_parse_monetary_values)
 BOOST_AUTO_TEST_CASE(json_parse_errors)
 {
     // Valid
-    BOOST_CHECK_EQUAL(read_string(std::string("1.0"), value), true);
+    BOOST_CHECK_EQUAL(ParseNonRFCJSONValue("1.0").get_real(), 1.0);
     // Valid, with trailing whitespace
-    BOOST_CHECK_EQUAL(read_string(std::string("1.0 "), value), true);
+    BOOST_CHECK_EQUAL(ParseNonRFCJSONValue(" 1.0").get_real(), 1.0);
+	BOOST_CHECK_EQUAL(ParseNonRFCJSONValue("1.0 ").get_real(), 1.0);
     // Invalid, initial garbage
     BOOST_CHECK_THROW(ParseNonRFCJSONValue("[1.0"), std::runtime_error);
     BOOST_CHECK_THROW(ParseNonRFCJSONValue("a1.0"), std::runtime_error);
