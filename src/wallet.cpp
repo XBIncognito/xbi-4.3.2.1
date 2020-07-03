@@ -1751,20 +1751,6 @@ bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*, unsigned int
     AvailableCoins(vCoins, true, NULL, false, STAKABLE_COINS);
     CAmount nAmountSelected = 0;
 	
-	 unsigned int nStakeMinAgeCurrent = nStakeMinAge;
-    int nStakeDepth = Params().COINBASE_MATURITY();
-    if (IsSporkActive(SPORK_17_STAKE_REQ_AG)) {
-        nStakeMinAgeCurrent = nStakeMinAge2;
-        nStakeDepth = Params().Stake_MinConfirmations();
-    }
-
-    CAmount nStakeAmount = 0;
-    if (IsSporkActive(SPORK_18_STAKE_REQ_SZ)) {
-        nStakeAmount = Params().Stake_MinAmount();
-    }
-
-
-
 	unsigned int nStakeMinAgeCurrent = nStakeMinAge;
     int nStakeDepth = Params().COINBASE_MATURITY();
     if (IsSporkActive(SPORK_17_STAKE_REQ_AG)) {

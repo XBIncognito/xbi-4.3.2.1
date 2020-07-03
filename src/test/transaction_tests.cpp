@@ -18,7 +18,6 @@
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
-#include <boost/assign/list_of_hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
 
@@ -106,7 +105,7 @@ BOOST_AUTO_TEST_CASE(tx_valid)
             bool fValid = true;
             for (unsigned int inpIdx = 0; inpIdx < inputs.size(); inpIdx++) {
 				const UniValue& input = inputs[inpIdx];
-                if (!input.isArray()))
+                if (!input.isArray())
                 {
                     fValid = false;
                     break;
