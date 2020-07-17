@@ -399,14 +399,14 @@ UniValue masternodecurrent (const UniValue& params, bool fHelp)
             "  \"txhash\": \"xxxx\",      (string) Collateral transaction hash\n"
             "  \"pubkey\": \"xxxx\",      (string) MN Public key\n"
             "  \"lastseen\": xxx,         (numeric) Time since epoch of last seen\n"
-            "  \"activeseconds\": xxx,  (numeric) Seconds MN has been active\n"	            "  \"activeseconds\": xxx,    (numeric) Seconds MN has been active\n"
-            "}\n"
+            "  \"activeseconds\": xxx,  (numeric) Seconds MN has been active\n"
             "\nExamples:\n" +
             HelpExampleCli("masternodecurrent", "") + HelpExampleRpc("masternodecurrent", ""));
 
-    const int nHeight = WITH_LOCK(cs_main, return chainActive.Height() + 1);
-    int nCount = 0;
-    CMasternode* winner = mnodeman.GetNextMasternodeInQueueForPayment(nHeight, true, nCount);
+    //const int nHeight = WITH_LOCK(cs_main, return chainActive.Height() + 1);
+    //int nCount = 0;
+    //CMasternode* winner = mnodeman.GetNextMasternodeInQueueForPayment(nHeight, true, nCount);
+    CMasternode* winner = mnodeman.GetCurrentMasterNode(1);
     if (winner) {
         UniValue obj(UniValue::VOBJ);
         obj.push_back(Pair("protocol", (int64_t)winner->protocolVersion));
