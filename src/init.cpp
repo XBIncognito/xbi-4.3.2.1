@@ -28,6 +28,7 @@
 #include "net.h"
 #include "rpcserver.h"
 #include "script/standard.h"
+#include "scheduler.h"
 #include "spork.h"
 #include "sporkdb.h"
 #include "txdb.h"
@@ -650,7 +651,7 @@ bool InitSanityCheck(void)
 /** Initialize xbi.
  *  @pre Parameters should be parsed and config file should be read.
  */
-bool AppInit2(boost::thread_group& threadGroup)
+bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 {
 // ********************************************************* Step 1: setup
 #ifdef _MSC_VER
@@ -970,6 +971,10 @@ bool AppInit2(boost::thread_group& threadGroup)
         if (!sporkManager.SetPrivKey(GetArg("-sporkkey", "")))
             return InitError(_("Unable to sign spork message, wrong key?"));
     }
+	
+	// Start the lightweight task scheduler thread
+    CScheduler::Function serviceLoop = boost::bind(&CScheduler::serviceQueue, &scheduler);
+    threadGroup.create_thread(boost::bind(&TraceThread<CScheduler::Function>, "scheduler", serviceLoop));
 
     /* Start the RPC server already.  It will be started in "warmup" mode
      * and not really process calls already (but it will signify connections
@@ -1168,6 +1173,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     // -proxy sets a proxy for all outgoing network traffic
     // -noproxy (or -proxy=0) as well as the empty string can be used to not set a proxy, this is the default
     std::string proxyArg = GetArg("-proxy", "");
+	SetLimited(NET_TOR);
     if (proxyArg != "" && proxyArg != "0") {
         CService proxyAddr;
         if (!Lookup(proxyArg.c_str(), proxyAddr, 9050, fNameLookup)) {
@@ -1182,7 +1188,7 @@ bool AppInit2(boost::thread_group& threadGroup)
         SetProxy(NET_IPV6, addrProxy);
         SetProxy(NET_TOR, addrProxy);
         SetNameProxy(addrProxy);
-        SetReachable(NET_TOR); // by default, -proxy sets onion as reachable, unless -noonion later
+        SetLimited(NET_TOR, false); // by default, -proxy sets onion as reachable, unless -noonion later
     }
 
     // -onion can be used to set only a proxy for .onion, or override normal proxy for .onion addresses
@@ -1191,7 +1197,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     std::string onionArg = GetArg("-onion", "");
     if (onionArg != "") {
         if (onionArg == "0") { // Handle -noonion/-onion=0
-            SetReachable(NET_TOR, false); // set onions as unreachable
+            SetLimited(NET_TOR); // set onions as unreachable
         } else {
             CService onionProxy;
             if (!Lookup(onionArg.c_str(), onionProxy, 9050, fNameLookup)) {
@@ -1201,7 +1207,7 @@ bool AppInit2(boost::thread_group& threadGroup)
             if (!addrOnion.IsValid())
                 return InitError(strprintf(_("Invalid -onion address or hostname: '%s'"), onionArg));
             SetProxy(NET_TOR, addrOnion);
-            SetReachable(NET_TOR);
+            SetLimited(NET_TOR, false);
         }
     }
 
@@ -1297,7 +1303,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     nTotalCache -= nBlockTreeDBCache;
     size_t nCoinDBCache = nTotalCache / 2; // use half of the remaining cache for coindb cache
     nTotalCache -= nCoinDBCache;
-    nCoinCacheSize = nTotalCache / 300; // coins in memory require around 300 bytes
+    nCoinCacheUsage = nTotalCache;
 
     bool fLoaded = false;
 	bool fRepair = false;
@@ -1318,7 +1324,7 @@ bool AppInit2(boost::thread_group& threadGroup)
                 delete zerocoinDB;
                 delete pSporkDB;
 
-                zerocoinDB = new CZerocoinDB(0, false, false);
+                zerocoinDB = new CZerocoinDB(0, false, fReindex);
                 pSporkDB = new CSporkDB(0, false, false);
                 pblocktree = new CBlockTreeDB(nBlockTreeDBCache, false, fReindex);
                 pcoinsdbview = new CCoinsViewDB(nCoinDBCache, false, fReindex);
@@ -1381,59 +1387,12 @@ bool AppInit2(boost::thread_group& threadGroup)
                 }
 
                 // XBI: recalculate Accumulator Checkpoints that failed to database properly
-                if (!listAccCheckpointsNoDB.empty() && chainActive.Tip()->GetBlockHeader().nVersion >= Params().Zerocoin_HeaderVersion()) {
+                if (!listAccCheckpointsNoDB.empty()) {
                     uiInterface.InitMessage(_("Calculating missing accumulators..."));
                     LogPrintf("%s : finding missing checkpoints\n", __func__);
-
-                    //search the chain to see when zerocoin started
-                    int nZerocoinStart = 0;
-                    CBlockIndex* pindex = chainActive.Tip();
-                    while (pindex->pprev) {
-                        if (pindex->GetBlockHeader().nVersion >= Params().Zerocoin_HeaderVersion())
-                            nZerocoinStart = pindex->nHeight;
-                        else if (nZerocoinStart)
-                            break;
-
-                        pindex = pindex->pprev;
-                    }
-
-                    // find each checkpoint that is missing
-                    pindex = chainActive[nZerocoinStart];
-                    while (!listAccCheckpointsNoDB.empty()) {
-                        if (ShutdownRequested())
-                            break;
-
-                        // find checkpoints by iterating through the blockchain beginning with the first zerocoin block
-                        if (pindex->nAccumulatorCheckpoint != pindex->pprev->nAccumulatorCheckpoint) {
-
-                            double dPercent = (pindex->nHeight - nZerocoinStart) / (double)(chainActive.Height() - nZerocoinStart);
-                            uiInterface.ShowProgress(_("Calculating missing accumulators..."), (int)(dPercent * 100));
-                            if(find(listAccCheckpointsNoDB.begin(), listAccCheckpointsNoDB.end(), pindex->nAccumulatorCheckpoint) != listAccCheckpointsNoDB.end()) {
-                                uint256 nCheckpointCalculated = 0;
-                                if (!CalculateAccumulatorCheckpoint(pindex->nHeight, nCheckpointCalculated)) {
-                                    // GetCheckpoint could have terminated due to a shutdown request. Check this here.
-                                    if (ShutdownRequested())
-                                        break;
-                                    return InitError(_("Failed to calculate accumulator checkpoint"));
-                                }
-
-                                //check that the calculated checkpoint is what is in the index.
-                                if(nCheckpointCalculated != pindex->nAccumulatorCheckpoint) {
-                                    LogPrintf("%s : height=%d calculated_checkpoint=%s actual=%s\n", __func__, pindex->nHeight, nCheckpointCalculated.GetHex(), pindex->nAccumulatorCheckpoint.GetHex());
-                                    return InitError(_("Calculated accumulator checkpoint is not what is recorded by block index"));
-                                }
-
-                                auto it = find(listAccCheckpointsNoDB.begin(), listAccCheckpointsNoDB.end(), pindex->nAccumulatorCheckpoint);
-                                listAccCheckpointsNoDB.erase(it);
-                            }
-                        }
-
-                        // if we have iterated to the end of the blockchain, then checkpoints should be in sync
-                        if (pindex->nHeight + 1 <= chainActive.Height())
-                            pindex = chainActive[pindex->nHeight + 1];
-                        else
-                            break;
-                    }
+					string strError;
+					if (!ReindexAccumulators(listAccCheckpointsNoDB, strError))
+						return InitError(strError);                    
                 }
 
                 uiInterface.InitMessage(_("Verifying blocks..."));
@@ -1887,7 +1846,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     if (GetBoolArg("-listenonion", DEFAULT_LISTEN_ONION))
         StartTorControl(threadGroup);
 
-    StartNode(threadGroup);
+    StartNode(threadGroup, scheduler);
 
 #ifdef ENABLE_WALLET
     // Generate coins in the background

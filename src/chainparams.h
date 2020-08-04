@@ -117,6 +117,7 @@ public:
     int Zerocoin_Block_LastGoodCheckpoint() const { return nBlockLastGoodCheckpoint; }
     int Zerocoin_StartTime() const { return nZerocoinStartTime; }
     int Zerocoin_AccumulatorStartHeight() const { return nAccumulatorStartHeight; }
+
 	/** Staking Requirements */
     int Stake_MinConfirmations() const {
         return nStakeMinConfirmations;
@@ -182,9 +183,8 @@ protected:
     int nZerocoinStartTime;
     int nAccumulatorStartHeight;
 	/** Staking Requirements */
-    int nStakeMinConfirmations;
-    CAmount nStakeMinAmount;
-	
+	int nStakeMinConfirmations;
+	CAmount nStakeMinAmount;
 };
 
 /**

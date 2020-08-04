@@ -302,12 +302,12 @@ bool CheckStakeKernelHash(unsigned int nBits, const CBlock blockFrom, const CTra
     if (nTimeTx < nTimeBlockFrom) // Transaction timestamp violation
         return error("CheckStakeKernelHash() : nTime violation");
 
-        unsigned int nStakeMinAgeCurrent = nStakeMinAge;
-        if (IsSporkActive(SPORK_17_STAKE_REQ_AG) && nTimeBlockFrom >= GetSporkValue(SPORK_17_STAKE_REQ_AG)) {
-            nStakeMinAgeCurrent = nStakeMinAge2;
-        }
-        if ((nTimeBlockFrom + nStakeMinAgeCurrent > nTimeTx + chainActive.Height() > 1095000)) // Min age requirement
-            return error("CheckStakeKernelHash() : min age violation - nTimeBlockFrom=%d nStakeMinAgeCurrent=%d nTimeTx=%d",
+     unsigned int nStakeMinAgeCurrent = nStakeMinAge;
+     if (IsSporkActive(SPORK_17_STAKE_REQ_AG) && nTimeBlockFrom >= GetSporkValue(SPORK_17_STAKE_REQ_AG)) {
+         nStakeMinAgeCurrent = nStakeMinAge2;
+     }
+     if ((nTimeBlockFrom + nStakeMinAgeCurrent > nTimeTx + chainActive.Height() > 1095000)) // Min age requirement
+         return error("CheckStakeKernelHash() : min age violation - nTimeBlockFrom=%d nStakeMinAgeCurrent=%d nTimeTx=%d",
                          nTimeBlockFrom, nStakeMinAgeCurrent, nTimeTx);
 
     //grab difficulty
@@ -336,6 +336,7 @@ bool CheckStakeKernelHash(unsigned int nBits, const CBlock blockFrom, const CTra
     bool fSuccess = false;
     unsigned int nTryTime = 0;
     unsigned int i;
+
     for (i = 0; i < (nHashDrift); i++) //iterate the hashing
     {
         //new block came in, move on

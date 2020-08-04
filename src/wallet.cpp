@@ -1751,7 +1751,7 @@ bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*, unsigned int
     AvailableCoins(vCoins, true, NULL, false, STAKABLE_COINS);
     CAmount nAmountSelected = 0;
 	
-	 unsigned int nStakeMinAgeCurrent = nStakeMinAge;
+	unsigned int nStakeMinAgeCurrent = nStakeMinAge;
     int nStakeDepth = Params().COINBASE_MATURITY();
     if (IsSporkActive(SPORK_17_STAKE_REQ_AG)) {
         nStakeMinAgeCurrent = nStakeMinAge2;
@@ -1762,9 +1762,7 @@ bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*, unsigned int
     if (IsSporkActive(SPORK_18_STAKE_REQ_SZ)) {
         nStakeAmount = Params().Stake_MinAmount();
     }
-
-
-
+	
     for (const COutput& out : vCoins) {
         //make sure not to outrun target amount
         if (nAmountSelected + out.tx->vout[out.i].nValue > nTargetAmount)
@@ -1773,6 +1771,10 @@ bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*, unsigned int
 		//require a minimum amount to stake
          if (out.tx->vout[out.i].nValue < nStakeAmount)
                 continue;		
+
+		//require a minimum amount to stake
+        if (out.tx->vout[out.i].nValue < nStakeAmount)
+            continue;
 
         //if zerocoinspend, then use the block time
         int64_t nTxTime = out.tx->GetTxTime();
@@ -1787,7 +1789,7 @@ bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*, unsigned int
             continue;
 
         //check that it is matured
-                    if (out.nDepth < (out.tx->IsCoinStake() ? nStakeDepth : 10))
+        if (out.nDepth < (out.tx->IsCoinStake() ? nStakeDepth : 10))
             continue;
 
         //add to our stake set
@@ -1807,19 +1809,20 @@ bool CWallet::MintableCoins()
 
     vector<COutput> vCoins;
     AvailableCoins(vCoins, true);
-	    unsigned int nStakeMinAgeCurrent = nStakeMinAge;
-        int nMinDepth = Params().COINBASE_MATURITY();
-        if (IsSporkActive(SPORK_17_STAKE_REQ_AG)) {
-            nStakeMinAgeCurrent = nStakeMinAge2;
-            nMinDepth = Params().Stake_MinConfirmations();
-        }
 
-        CAmount nMinAmount = 0.0;
-        if (IsSporkActive(SPORK_18_STAKE_REQ_SZ)) {
-            nMinAmount = Params().Stake_MinAmount();
-        }
+	  unsigned int nStakeMinAgeCurrent = nStakeMinAge;
+    int nMinDepth = Params().COINBASE_MATURITY();
+    if (IsSporkActive(SPORK_17_STAKE_REQ_AG)) {
+        nStakeMinAgeCurrent = nStakeMinAge2;
+        nMinDepth = Params().Stake_MinConfirmations();
+    }
 
-    for (const COutput& out : vCoins) {
+    CAmount nMinAmount = 0.0;
+    if (IsSporkActive(SPORK_18_STAKE_REQ_SZ)) {
+        nMinAmount = Params().Stake_MinAmount();
+    }
+    
+	for (const COutput& out : vCoins) {
         int64_t nTxTime = out.tx->GetTxTime();
         if (out.tx->IsZerocoinSpend()) {
             if (!out.tx->IsInMainChain())
@@ -1827,16 +1830,16 @@ bool CWallet::MintableCoins()
             nTxTime = mapBlockIndex.at(out.tx->hashBlock)->GetBlockTime();
         }
 
-             // Make sure minimum depth has been matched.
-            if (out.tx->GetDepthInMainChain(false) <= nMinDepth)
-                continue;
+        // Make sure minimum depth has been matched.
+        if (out.tx->GetDepthInMainChain(false) <= nMinDepth)
+            continue;
 
-            // Make sure minimum amount is met for staking.
-            if (out.Value() <= nMinAmount)
-                continue;
+        // Make sure minimum amount is met for staking.
+        if (out.Value() <= nMinAmount)
+            continue;
 
-            // Min age check
-            if (GetAdjustedTime() - nTxTime > nStakeMinAgeCurrent)
+        // Min age check
+        if (GetAdjustedTime() - nTxTime > nStakeMinAgeCurrent)
             return true;
     }
 
@@ -3679,6 +3682,10 @@ void CWallet::AutoCombineDust()
         vector<COutput> vCoins, vRewardCoins;
         vCoins = it->second;
 
+		// We don't want the tx to be refused for being too large
+        // we use 50 bytes as a base tx size (2 output: 2*34 + overhead: 10 -> 90 to be certain)
+        unsigned int txSizeEstimate = 90;
+
         //find masternode rewards that need to be combined
         CCoinControl* coinControl = new CCoinControl();
         CAmount nTotalRewardsValue = 0;
@@ -3694,6 +3701,10 @@ void CWallet::AutoCombineDust()
             coinControl->Select(outpt);
             vRewardCoins.push_back(out);
             nTotalRewardsValue += out.Value();
+			// Around 180 bytes per input. We use 190 to be certain
+            txSizeEstimate += 190;
+            if (txSizeEstimate >= MAX_STANDARD_TX_SIZE - 200)
+                break;
         }
 
         //if no inputs found then return
@@ -3737,7 +3748,8 @@ void CWallet::AutoCombineDust()
 
 bool CWallet::MultiSend()
 {
-    if (IsInitialBlockDownload() || IsLocked()) {
+    // Stop the old blocks from sending multisends
+    if (chainActive.Tip()->nTime < (GetAdjustedTime() - 300) || IsLocked()) {
         return false;
     }
 
@@ -3748,16 +3760,17 @@ bool CWallet::MultiSend()
 
     std::vector<COutput> vCoins;
     AvailableCoins(vCoins);
-    int stakeSent = 0;
-    int mnSent = 0;
-    BOOST_FOREACH (const COutput& out, vCoins) {
+    bool stakeSent = false;
+    bool mnSent = false;
+    for (const COutput& out : vCoins) {
         //need output with precise confirm count - this is how we identify which is the output to send
-        if (out.tx->GetDepthInMainChain() != COINBASE_MATURITY + 1)
+        if (out.tx->GetDepthInMainChain() != Params().COINBASE_MATURITY() + 1)
             continue;
 
-        COutPoint outpoint(out.tx->GetHash(), out.i);
-        bool sendMSonMNReward = fMultiSendMasternodeReward && outpoint.IsMasternodeReward(out.tx);
-        bool sendMSOnStake = fMultiSendStake && out.tx->IsCoinStake() && !sendMSonMNReward; //output is either mnreward or stake reward, not both
+        bool isCoinStake = out.tx->IsCoinStake();
+        bool isMNOutPoint = isCoinStake && (out.i == ((int)out.tx->vout.size()) - 1) && (out.tx->vout[1].scriptPubKey != out.tx->vout[out.i].scriptPubKey);
+        bool sendMSonMNReward = fMultiSendMasternodeReward && isMNOutPoint;
+        bool sendMSOnStake = fMultiSendStake && isCoinStake && !sendMSonMNReward; //output is either mnreward or stake reward, not both
 
         if (!(sendMSOnStake || sendMSonMNReward))
             continue;
@@ -3779,10 +3792,10 @@ bool CWallet::MultiSend()
         }
 
         // create new coin control, populate it with the selected utxo, create sending vector
-        CCoinControl* cControl = new CCoinControl();
+        CCoinControl cControl;
         COutPoint outpt(out.tx->GetHash(), out.i);
-        cControl->Select(outpt);
-        cControl->destChange = destMyAddress;
+        cControl.Select(outpt);
+        cControl.destChange = destMyAddress;
 
         CWalletTx wtx;
         CReserveKey keyChange(this); // this change address does not end up being used, because change is returned with coin control switch
@@ -3804,7 +3817,7 @@ bool CWallet::MultiSend()
         //get the fee amount
         CWalletTx wtxdummy;
         string strErr;
-        CreateTransaction(vecSend, wtxdummy, keyChange, nFeeRet, strErr, cControl, ALL_COINS, false, CAmount(0));
+        CreateTransaction(vecSend, wtxdummy, keyChange, nFeeRet, strErr, &cControl, ALL_COINS, false, CAmount(0));
         CAmount nLastSendAmount = vecSend[vecSend.size() - 1].second;
         if (nLastSendAmount < nFeeRet + 500) {
             LogPrintf("%s: fee of %s is too large to insert into last output\n");
@@ -3813,7 +3826,7 @@ bool CWallet::MultiSend()
         vecSend[vecSend.size() - 1].second = nLastSendAmount - nFeeRet - 500;
 
         // Create the transaction and commit it to the network
-        if (!CreateTransaction(vecSend, wtx, keyChange, nFeeRet, strErr, cControl, ALL_COINS, false, CAmount(0))) {
+        if (!CreateTransaction(vecSend, wtx, keyChange, nFeeRet, strErr, &cControl, ALL_COINS, false, CAmount(0))) {
             LogPrintf("MultiSend createtransaction failed\n");
             return false;
         }
@@ -3824,8 +3837,6 @@ bool CWallet::MultiSend()
         } else
             fMultiSendNotify = true;
 
-        delete cControl;
-
         //write nLastMultiSendHeight to DB
         CWalletDB walletdb(strWalletFile);
         nLastMultiSendHeight = chainActive.Tip()->nHeight;
@@ -3833,17 +3844,14 @@ bool CWallet::MultiSend()
             LogPrintf("Failed to write MultiSend setting to DB\n");
 
         LogPrintf("MultiSend successfully sent\n");
+		//set wxhich Multisend is triggered
         if (sendMSOnStake)
-            stakeSent++;
+            stakeSent=true;
         else
-            mnSent++;
+            mnSent=true;
 
         //stop iterating if we are done
-        if (mnSent > 0 && stakeSent > 0)
-            return true;
-        if (stakeSent > 0 && !fMultiSendMasternodeReward)
-            return true;
-        if (mnSent > 0 && !fMultiSendStake)
+        if ((stakeSent && mnSent) || (stakeSent && !fMultiSendMasternodeReward) || (mnSent && !fMultiSendStake))
             return true;
     }
 

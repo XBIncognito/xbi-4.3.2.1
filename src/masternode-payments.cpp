@@ -195,24 +195,20 @@ bool IsBlockValueValid(const CBlock& block, const CBlockIndex* pindex, CAmount n
     CAmount nExpectedMint = GetBlockValue(pindex->pprev->nHeight);
     if(block.IsProofOfWork())
         nExpectedMint += nFees;
-	
+
     bool isBudgetPaymentBlock = IsSporkActive(SPORK_13_ENABLE_SUPERBLOCKS) && budget.IsBudgetPaymentBlock(nHeight);
     bool isMintAcceptable = nMinted <= nExpectedMint;
 
     if (!masternodeSync.IsSynced() && (nHeight % GetBudgetPaymentCycleBlocks() < 100))
         //there is no budget data to use to check anything
         //super blocks will always be on these blocks, max 100 per budgeting
-     return true;
-
-        if(isMintAcceptable || isBudgetPaymentBlock)
         return true;
-
-       nExpectedMint = GetBlockValue(pindex->nHeight);
-
-		if(block.IsProofOfWork())
-        nExpectedMint += nFees;
-
-        isMintAcceptable = (nMinted <= nExpectedMint) && !isBudgetPaymentBlock;
+    if (isMintAcceptable || isBudgetPaymentBlock)
+		return true;
+	nExpectedMint = GetBlockValue(pindex->nHeight);
+	if (block.IsProofOfWork())
+		nExpectedMint += nFees;
+	isMintAcceptable = (nMinted <= nExpectedMint) && !isBudgetPaymentBlock;
         return isMintAcceptable;
 }
 
@@ -336,7 +332,7 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
         CBitcoinAddress address2(address1);
 
         LogPrint("masternode","Masternode payment of %s to %s\n", FormatMoney(masternodePayment).c_str(), address2.ToString().c_str());
-	}
+    }
 }
 
 int CMasternodePayments::GetMinMasternodePaymentsProto()
